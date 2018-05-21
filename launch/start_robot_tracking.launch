@@ -1,0 +1,6 @@
+<launch>
+    <!-- Launching face_tracking launch files and Robot controllers -->
+    <include file="$(find face_tracker_pkg)/launch/start_tracking.launch"/> 
+    <rosparam file="$(find face_tracker_control)/config/track.yaml" command="load"/>
+    <node name="face_controller" pkg="face_tracker_control" type="face_tracker_controller" output="screen" />
+</launch>

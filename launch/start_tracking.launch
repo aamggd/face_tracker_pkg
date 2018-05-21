@@ -1,0 +1,7 @@
+<launch>
+    <!-- Starting face tracker node -->
+    <node name="republish" type="republish" pkg="image_transport" output="screen" 
+        args="compressed in:=/raspicam_node/image raw out:=/turtlebot3/image_raw" /> 
+    <rosparam file="$(find face_tracker_pkg)/config/track.yaml" command="load"/>
+    <node name="face_tracker" pkg="face_tracker_pkg" type="face_tracker_node" output="screen" />
+</launch>
