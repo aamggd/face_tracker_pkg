@@ -40,7 +40,7 @@ class Face_Detector
 
         input_image_topic = "/turtlebot3/image_raw";
         output_image_topic = "/face_detector/raw_image";
-        haar_file_face = "/home/bert/dev_ws/src/data/face.xml";
+        haar_file_face = "/home/bert/rosworkspace/dev_ws/src/face_tracker_pkg/data/face.xml";
         face_tracking = 1;
         display_original_image = 1;
         display_tracking_image = 1;
@@ -191,7 +191,7 @@ class Face_Detector
 
         line(img, pt1, pt2, Scalar(0, 0, 255), 0.2);
         line(img, pt3, pt4, Scalar(0, 255, 0), 0.2);
-        line(img, pt5, pt6, Scalar(0, 255, 0), 0.2);
+        line(img, pt5, pt6, Scalar(255, 0, 0), 0.2);
 
         putText(img, "Left", cvPoint(50, 240), FONT_HERSHEY_SIMPLEX, 1, cvScalar(255, 0, 0), 2, CV_AA);
         putText(img, "Center", cvPoint(145, 240), FONT_HERSHEY_SIMPLEX, 1, cvScalar(0, 0, 255), 2, CV_AA);
