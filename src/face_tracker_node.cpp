@@ -40,7 +40,7 @@ class Face_Detector
 
         input_image_topic = "/turtlebot3/image_raw";
         output_image_topic = "/face_detector/raw_image";
-        haar_file_face = "/home/bert/rosworkspace/dev_ws/src/face_tracker_pkg/data/face.xml";
+        haar_file_face = "/home/bert/rosworkspaces/dev_ws/src/face_tracker_pkg/data/face.xml";
         face_tracking = 1;
         display_original_image = 1;
         display_tracking_image = 1;
