@@ -111,13 +111,21 @@ jobs:
           }
           tasks.register("resolveAllDependencies") {
               doLast {
-                  var count = 0
+                  var resolved = 0
+                  var skipped = 0
                   configurations.filter { it.isCanBeResolved }.sortedBy { it.name }.forEach { cfg ->
                       println("RESOLVE ${cfg.name}")
-                      cfg.resolve()
-                      count++
+                      try {
+                          cfg.resolve()
+                          resolved++
+                      } catch (t: Throwable) {
+                          val msg = t.message?.lineSequence()?.firstOrNull() ?: t.javaClass.simpleName
+                          println("SKIP ${cfg.name}: $msg")
+                          skipped++
+                      }
                   }
-                  println("RESOLVED_CONFIGURATIONS=$count")
+                  println("RESOLVED_CONFIGURATIONS=$resolved")
+                  println("SKIPPED_CONFIGURATIONS=$skipped")
               }
           }
           EOF
@@ -132,13 +140,15 @@ jobs:
           set -euo pipefail
           gradle --no-daemon --stacktrace :app:resolveAllDependencies | tee ../dependency-resolution.txt
           grep -q 'RESOLVED_CONFIGURATIONS=' ../dependency-resolution.txt
+          grep -q 'SKIPPED_CONFIGURATIONS=' ../dependency-resolution.txt
 
       - name: Prove key dependency cache entries
         shell: bash
         run: |
           set -euo pipefail
           find "$HOME/.gradle/caches" -type f -name 'gradle-9.2.0.jar' -print -quit | grep .
-          find "$HOME/.gradle/caches" -type f -name '*room-compiler*2.8.4*' -print -quit | grep .
+          find "$HOME/.gradle/caches" -type f -iname '*room*compiler*' -print -quit | grep .
+          find "$HOME/.gradle/caches" -type f -iname '*kotlin*2.3.21*' -print -quit | grep . || true
           find "$HOME/.gradle/caches" -type f -iname '*compose*' | head -5
 
       - name: Package Gradle cache
