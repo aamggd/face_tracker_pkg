@@ -109,21 +109,29 @@ jobs:
               androidTestImplementation("androidx.test:runner:1.7.0")
               androidTestImplementation("androidx.test.ext:junit:1.3.0")
           }
+          tasks.register("resolveAllDependencies") {
+              doLast {
+                  var count = 0
+                  configurations.filter { it.isCanBeResolved }.sortedBy { it.name }.forEach { cfg ->
+                      println("RESOLVE ${cfg.name}")
+                      cfg.resolve()
+                      count++
+                  }
+                  println("RESOLVED_CONFIGURATIONS=$count")
+              }
+          }
           EOF
           cat > deps-project/app/src/main/AndroidManifest.xml <<'EOF'
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android"><application android:theme="@style/AppTheme"/></manifest>
-          EOF
-          mkdir -p deps-project/app/src/main/res/values
-          cat > deps-project/app/src/main/res/values/styles.xml <<'EOF'
-          <resources><style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar"/></resources>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"><application /></manifest>
           EOF
 
-      - name: Resolve and build dependency-only project
+      - name: Resolve all SHIBANI dependency configurations
         working-directory: deps-project
         shell: bash
         run: |
           set -euo pipefail
-          gradle --no-daemon --stacktrace :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+          gradle --no-daemon --stacktrace :app:resolveAllDependencies | tee ../dependency-resolution.txt
+          grep -q 'RESOLVED_CONFIGURATIONS=' ../dependency-resolution.txt
 
       - name: Prove key dependency cache entries
         shell: bash
@@ -138,6 +146,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p out
+          cp dependency-resolution.txt out/
           tar -czf out/shibani-gradle-cache.tgz -C "$HOME/.gradle" caches
           sha256sum out/shibani-gradle-cache.tgz | tee out/SHA256SUMS.txt
           du -h out/shibani-gradle-cache.tgz
